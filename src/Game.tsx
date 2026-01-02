@@ -17,6 +17,18 @@ const winningCombination = [
   [2, 4, 6],
 ];
 
+function checkWinner(board: string[]): string | null {
+  for (let combination of winningCombination) {
+    const [a, b, c] = combination;
+
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      return board[a];
+    }
+  }
+
+  return null;
+}
+
 export default function Game() {
   const [board, setBoard] = useState<string[]>(initialBoardState);
   const [isXTurn, setIsXTurn] = useState(initialIsXTurnState);
@@ -26,30 +38,18 @@ export default function Game() {
     return isXTurn ? "X" : "O";
   }
 
-  function checkWinner(squares: string[]) {
-    for (let combination of winningCombination) {
-      const [a, b, c] = combination;
-
-      if (
-        squares[a] &&
-        squares[a] === squares[b] &&
-        squares[a] === squares[c]
-      ) {
-        setWinner(squares[a]);
-      }
-    }
-  }
-
   function handleClick(index: number) {
     if (board[index] || winner) return;
+
+    setIsXTurn(!isXTurn);
 
     const updatedBoard = [...board];
     updatedBoard[index] = getTurn();
 
-    checkWinner(updatedBoard);
+    const hasWinner = checkWinner(updatedBoard);
+    if (hasWinner) setWinner(hasWinner);
 
     setBoard(updatedBoard);
-    setIsXTurn(!isXTurn);
   }
 
   function getGameStatus(): string {
@@ -74,9 +74,7 @@ export default function Game() {
         </h1>
 
         <div
-          className={`text-center mb-6 ${winner
-              ? "text-4xl font-bold text-green-400"
-              : "textxl text-white"
+          className={`text-center mb-6 ${winner ? "text-4xl font-bold text-green-400" : "text-xl text-white"
             }`}
         >
           {getGameStatus()}
@@ -87,7 +85,7 @@ export default function Game() {
             <div className="relative group" key={index}>
               <div
                 onClick={() => handleClick(index)}
-                className={`h-32 flex justify-center items-center bg-gray-800 rounded-md text-6xl font-bold transition-colors duration-200 ${(!square && !winner) ? "hover:bg-gray-700" : ""
+                className={`h-32 flex justify-center items-center bg-gray-800 rounded-md text-6xl font-bold transition-colors duration-200 ${!square && !winner ? "hover:bg-gray-700" : ""
                   } ${square === "X" ? "text-white" : "text-slate-400"}`}
               >
                 {square}
